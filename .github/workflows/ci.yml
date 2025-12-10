@@ -9,8 +9,20 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   build:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     runs-on: ubuntu-latest
 
@@ -25,9 +37,18 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory ./TestResults
+      run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFilePrefix=testResults"
     # upload code coverage results codecov.io
     - name: Upload code coverage results
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+    # upload test results to GitHub
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          ./TestResults/**/*.trx
+        check_name: Test Results
+        comment_title: Test Results

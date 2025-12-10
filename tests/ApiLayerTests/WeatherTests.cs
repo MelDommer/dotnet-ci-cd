@@ -2,7 +2,7 @@
 
 public class UnitTest1
 {
-    [Fact(Skip = "Not implemented yet")]
+    [Fact]
     public void Should_convert_C_to_F()
     {
         WeatherForecast forecast = new(DateOnly.FromDateTime(DateTime.Now), 25, "Warm");
