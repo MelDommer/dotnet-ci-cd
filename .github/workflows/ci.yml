@@ -30,4 +30,4 @@ jobs:
     - name: Upload code coverage results
       uses: codecov/codecov-action@v3
       with:
-          files: ./TestResults/**/*.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
